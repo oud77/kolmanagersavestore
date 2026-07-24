@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard KOL - Urutan Pas</title>
+    <title>Dashboard KOL - Urutan Benar</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         *{margin:0; padding:0; font-family:'Segoe UI', Arial, sans-serif; box-sizing:border-box;}
-        :root{--utama:#165DFF; --sukses:#00B42A; --peringatan:#FF7D00; --bahaya:#F53F3F; --abu:#86909C; --bg:#F7F8FA; --putih:#FFFFFF; --bayangan:0 2px 8px rgba(0,0,0,0.08);}
+        :root{--utama:#165DFF; --sukses:#00B42A; --peringatan:#FF7D00; --bahaya:#F53F3F; --abu:#86909C; --bg:#F7F8FA; --putih:#FFFFFF;}
         body{background:var(--bg); padding:15px; max-width:1350px; margin:0 auto;}
         h1{color:#1D2129; text-align:center; margin-bottom:20px; font-size:24px;}
         .tombol{padding:8px 16px; border:none; border-radius:6px; cursor:pointer; font-weight:600; font-size:13px; margin:4px;}
@@ -16,7 +16,7 @@
         .muat{background:var(--peringatan); color:white;}
         .hapus{background:var(--bahaya); color:white;}
         .ringkasan{display:grid; grid-template-columns:repeat(auto-fit, minmax(180px,1fr)); gap:12px; margin-bottom:20px;}
-        .kartu{background:var(--putih); padding:15px; border-radius:8px; box-shadow:var(--bayangan); border-left:4px solid var(--utama);}
+        .kartu{background:var(--putih); padding:15px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.08); border-left:4px solid var(--utama);}
         .kartu h3{font-size:12px; color:var(--abu); margin-bottom:5px;}
         .kartu .angka{font-size:20px; font-weight:700;}
         .kartu.ke2{border-left-color:var(--sukses);}
@@ -25,13 +25,14 @@
         .kartu.ke5{border-left-color:#722ED1;}
         .bagrafik{display:grid; grid-template-columns:2fr 1fr; gap:15px; margin-bottom:20px;}
         @media(max-width:768px){.bagrafik{grid-template-columns:1fr;}}
-        .kotak-grafik{background:var(--putih); padding:15px; border-radius:8px; box-shadow:var(--bayangan);}
-        .bag-analisis{background:linear-gradient(to right, #E8F3FF, #F2F9FF); padding:18px; border-radius:8px; box-shadow:var(--bayangan); margin-bottom:20px; border-left:5px solid var(--utama);}
+        .kotak-grafik{background:var(--putih); padding:15px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.08);}
+        .bag-analisis{background:linear-gradient(to right, #E8F3FF, #F2F9FF); padding:18px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.08); margin-bottom:20px; border-left:5px solid var(--utama);}
         .bag-analisis h3{color:var(--utama); margin-bottom:10px; font-size:16px;}
-        table{width:100%; border-collapse:collapse; margin-top:10px; background:var(--putih); border-radius:8px; overflow:hidden; box-shadow:var(--bayangan);}
+        table{width:100%; border-collapse:collapse; margin-top:10px; background:var(--putih); border-radius:8px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.08);}
         th, td{padding:9px 5px; text-align:center; border-bottom:1px solid #E5E6EB; font-size:11px;}
         th{background:var(--utama); color:white; font-weight:600;}
         input, select{width:100%; padding:4px; border:1px solid #C9CDD4; border-radius:4px; text-align:center; font-size:11px;}
+        input[type="date"]{padding:3px;}
         .angka{font-weight:600;}
         .bagus{color:var(--sukses);}
         .sedang{color:var(--peringatan);}
@@ -138,7 +139,7 @@ async function simpanKeSheet(){
     const semuaBaris = document.querySelectorAll('#tabelKOL tbody tr');
     let sukses = 0;
     for(const baris of semuaBaris){
-        // === URUTAN INI SUDAH PAS 100% DENGAN SHEETS ===
+        // === KIRIM DATA DENGAN URUTAN YANG BENAR ===
         const data = {
             no: baris.children[0].textContent,
             nama: baris.children[1].querySelector('input').value,
