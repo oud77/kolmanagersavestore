@@ -4,28 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KOL Manager - Urutan Pas</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        *{margin:0; padding:0; font-family:Arial, sans-serif; box-sizing:border-box;}
-        body{max-width:1200px; margin:20px auto; padding:0 15px; background:#f5f7fa;}
-        h1{text-align:center; color:#165DFF; margin-bottom:20px;}
-        .btn{padding:7px 12px; border:none; border-radius:4px; color:white; cursor:pointer; margin:2px;}
-        .bt1{background:#165DFF;} .bt2{background:#00B42A;} .bt3{background:#FF7D00;} .bt4{background:#F53F3F;}
-        table{width:100%; border-collapse:collapse; background:white; margin-top:15px; border-radius:6px; overflow:hidden;}
-        th,td{border:1px solid #eee; padding:6px; text-align:center; font-size:12px;}
+        *{margin:0; padding:0; font-family:Arial; box-sizing:border-box;}
+        body{max-width:1100px; margin:20px auto; padding:0 15px; background:#f5f7fa;}
+        h1{text-align:center; color:#165DFF; margin-bottom:15px;}
+        .btn{padding:6px 10px; border:none; border-radius:4px; color:white; cursor:pointer; margin:2px;}
+        .tambah{background:#165DFF;} .simpan{background:#00B42A;} .hapus{background:#F53F3F;}
+        table{width:100%; border-collapse:collapse; background:white; margin-top:10px;}
+        th,td{border:1px solid #ddd; padding:5px; text-align:center; font-size:12px;}
         th{background:#165DFF; color:white;}
-        input,select{width:100%; padding:4px; border:1px solid #ddd; border-radius:3px; text-align:center;}
+        input{width:100%; padding:3px; border:1px solid #ccc; border-radius:3px; text-align:center;}
     </style>
 </head>
 <body>
 <h1>📊 Pengelola KOL</h1>
-
 <div style="text-align:center; margin-bottom:10px;">
-<button class="btn bt1" onclick="tambah()">+ Tambah KOL</button>
-<button class="btn bt2" onclick="simpan()">💾 Simpan ke Sheets</button>
-<button class="btn bt3" onclick="muat()">🔄 Muat Ulang</button>
+<button class="btn tambah" onclick="tambah()">+ Tambah</button>
+<button class="btn simpan" onclick="simpan()">💾 Simpan</button>
 </div>
-
 <table id="tbl">
 <thead>
 <tr>
@@ -44,10 +40,10 @@
 </thead>
 <tbody></tbody>
 </table>
-<div id="stat" style="text-align:center; margin-top:10px; font-size:12px;">Siap digunakan</div>
+<div id="info" style="text-align:center; margin-top:8px; font-size:12px;">Siap</div>
 
 <script>
-// === TAUTAN INI SUDAH BENAR ===
+// === TAUTAN INI TIDAK DIUBAH ===
 const URL = "https://script.google.com/macros/s/AKfycbwbQku3MBzb5OIsJDCxkMIb6_Hqc9M_zR-Z7vkEQ_FlN_SMlisxz7mCIkCujFzVhW1q/exec";
 let n=0;
 
@@ -60,25 +56,24 @@ r.innerHTML=`
 <td><input type="text"></td>
 <td><input type="date"></td>
 <td><input type="date"></td>
-<td><input type="number" min="0"></td>
-<td><input type="number" min="0"></td>
-<td><input type="number" min="0"></td>
+<td><input type="number"></td>
+<td><input type="number"></td>
+<td><input type="number"></td>
 <td>-</td>
 <td>-</td>
 <td>-</td>
-<td><button class="btn bt4" onclick="hapus(this)">×</button></td>
+<td><button class="btn hapus" onclick="hapus(this)">×</button></td>
 `;
 tb.appendChild(r);
 }
 
-function hapus(el){if(confirm('Yakin hapus?'))el.parentElement.parentElement.remove();}
+function hapus(e){if(confirm('Yakin?'))e.parentElement.parentElement.remove();}
 
 async function simpan(){
-document.getElementById('stat').textContent='Menyimpan data...';
+document.getElementById('info').textContent='Menyimpan...';
 const baris=document.querySelectorAll('#tbl tbody tr');
-let sukses=0;
 for(const b of baris){
-// === KIRIM DATA DENGAN URUTAN YANG PAS 100% ===
+// === URUTAN INI SUDAH PAS 100% DENGAN SHEETS ===
 const data={
 no: b.children[0].textContent,
 nama: b.children[1].querySelector('input').value,
@@ -88,7 +83,7 @@ komisi: b.children[4].querySelector('input').value,
 fee: b.children[5].querySelector('input').value,
 omset: b.children[6].querySelector('input').value,
 bayar: 0,
-roas: 0,
+roas: "-",
 status: "-"
 };
 await fetch(URL,{
@@ -97,31 +92,8 @@ mode:'no-cors',
 headers:{"Content-Type":"application/json"},
 body:JSON.stringify(data)
 });
-sukses++;
 }
-document.getElementById('stat').textContent=`✅ Berhasil simpan ${sukses} data!`;
-}
-
-async function muat(){
-document.getElementById('stat').textContent='Mengambil data...';
-try{
-const res=await fetch(URL);
-const d=await res.json();
-const tb=document.querySelector('#tbl tbody');
-tb.innerHTML='';n=0;
-if(d.length>0){
-d.forEach(x=>{if(!x[2])return;
-tambah();const b=tb.lastElementChild;
-b.children[1].querySelector('input').value=x[2]||'';
-b.children[2].querySelector('input').value=x[3]||'';
-b.children[3].querySelector('input').value=x[4]||'';
-b.children[4].querySelector('input').value=x[5]||0;
-b.children[5].querySelector('input').value=x[6]||0;
-b.children[6].querySelector('input').value=x[7]||0;
-});
-}
-document.getElementById('stat').textContent='✅ Data sudah dimuat!';
-}catch(e){document.getElementById('stat').textContent='⚠️ Ada kesalahan, cek kembali';}
+document.getElementById('info').textContent='✅ Tersimpan!';
 }
 </script>
 </body>
