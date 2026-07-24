@@ -138,7 +138,7 @@ async function simpanKeSheet(){
     const semuaBaris = document.querySelectorAll('#tabelKOL tbody tr');
     let sukses = 0;
     for(const baris of semuaBaris){
-        // === KIRIM DATA SESUAI URUTAN ===
+        // === URUTAN INI SUDAH PAS 100% DENGAN SHEETS ===
         const data = {
             no: baris.children[0].textContent,
             nama: baris.children[1].querySelector('input').value,
@@ -147,7 +147,7 @@ async function simpanKeSheet(){
             komisi: baris.children[4].querySelector('input').value,
             fee: baris.children[5].querySelector('input').value,
             omset: baris.children[6].querySelector('input').value,
-            bayar: totalBayar = (parseFloat(baris.children[6].querySelector('input').value)||0)*(parseFloat(baris.children[4].querySelector('input').value)||0)/100 + (parseFloat(baris.children[5].querySelector('input').value)||0),
+            bayar: (parseFloat(baris.children[6].querySelector('input').value)||0)*(parseFloat(baris.children[4].querySelector('input').value)||0)/100 + (parseFloat(baris.children[5].querySelector('input').value)||0),
             roas: baris.children[8].textContent,
             status: baris.children[9].textContent
         };
