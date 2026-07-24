@@ -1,1 +1,165 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pengelola KOL - Tim Bersama</title>
+    <style>
+        *{margin:0; padding:0; font-family:'Segoe UI', Arial, sans-serif; box-sizing:border-box;}
+        body{background:#F8FAFC; padding:15px; max-width:1200px; margin:0 auto;}
+        h1{color:#2563EB; text-align:center; margin-bottom:10px; font-size:22px;}
+        .info{background:#ECFDF5; padding:10px; border-radius:8px; margin-bottom:15px; font-size:13px; line-height:1.5;}
+        .tombol{padding:8px 14px; border:none; border-radius:6px; cursor:pointer; font-weight:600; font-size:13px; margin:3px;}
+        .tambah{background:#2563EB; color:white;}
+        .simpan{background:#10B981; color:white;}
+        .muat{background:#F59E0B; color:white;}
+        .hapus{background:#EF4444; color:white;}
+        table{width:100%; border-collapse:collapse; margin-top:10px; background:white; border-radius:8px; overflow:hidden;}
+        th, td{padding:8px 5px; text-align:center; border-bottom:1px solid #E2E8F0; font-size:12px;}
+        th{background:#2563EB; color:white; font-weight:600;}
+        input, select{width:100%; padding:5px; border:1px solid #CBD5E1; border-radius:4px; text-align:center; font-size:12px;}
+        .angka{font-weight:600;}
+        .bagus{color:#10B981;}
+        .sedang{color:#F59E0B;}
+        .buruk{color:#EF4444;}
+        .status{margin-top:10px; font-size:12px; color:#4B5563; text-align:center;}
+    </style>
+</head>
+<body>
+    <h1>👥 Pengelola KOL - Data Terpusat</h1>
+    <div class="info">
+        ✅ Data tersimpan otomatis ke Google Sheets<br>
+        ✅ Seluruh tim melihat data yang sama<br>
+        ✅ Hitung Komisi & ROAS otomatis
+    </div>
 
+    <button class="tombol tambah" onclick="tambahBaris()">➕ Tambah KOL</button>
+    <button class="tombol simpan" onclick="simpanKeSheet()">💾 Simpan ke Sheets</button>
+    <button class="tombol muat" onclick="ambilDariSheet()">🔄 Perbarui Data</button>
+
+    <table id="tabelKOL">
+        <thead>
+            <tr>
+                <th>No</th>
+                <th>Nama Akun</th>
+                <th>Komisi %</th>
+                <th>Fee (Rp)</th>
+                <th>Omset (Rp)</th>
+                <th>Pesanan</th>
+                <th>Bayar (Rp)</th>
+                <th>ROAS</th>
+                <th>Status</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <div class="status" id="statusInfo">Siap digunakan</div>
+
+<script>
+const TAUTAN_SHEET = "https://script.google.com/macros/s/AKfycbwbQku3MBzb5OIsJDCxkMIb6_Hqc9M_zR-Z7vkEQ_FlN_SMlisxz7mCIkCujFzVhW1q/exec";
+
+let nomor = 0;
+
+window.onload = ambilDariSheet;
+
+function tambahBaris(){
+    nomor++;
+    const tbody = document.querySelector('#tabelKOL tbody');
+    const baris = document.createElement('tr');
+    baris.innerHTML = `
+        <td>${nomor}</td>
+        <td><input type="text" placeholder="@akun"></td>
+        <td><input type="number" min="0" oninput="hitung(this)"></td>
+        <td><input type="number" min="0" oninput="hitung(this)"></td>
+        <td><input type="number" min="0" oninput="hitung(this)"></td>
+        <td><input type="number" min="0"></td>
+        <td class="angka" data-bayar>-</td>
+        <td class="angka" data-roas>-</td>
+        <td>
+            <select>
+                <option>Menunggu</option>
+                <option>Berjalan</option>
+                <option>Selesai</option>
+                <option>Berhenti</option>
+            </select>
+        </td>
+        <td><button class="tombol hapus" onclick="hapusBaris(this)">×</button></td>
+    `;
+    tbody.appendChild(baris);
+}
+
+function hitung(el){
+    const b = el.parentElement.parentElement;
+    const komisi = parseFloat(b.children[2].querySelector('input').value) || 0;
+    const fee = parseFloat(b.children[3].querySelector('input').value) || 0;
+    const omset = parseFloat(b.children[4].querySelector('input').value) || 0;
+
+    const totalBayar = omset * komisi / 100 + fee;
+    b.querySelector('[data-bayar]').textContent = totalBayar > 0 ? totalBayar.toLocaleString('id-ID') : '-';
+
+    const biaya = omset * komisi / 100 + fee;
+    const roas = biaya > 0 ? (omset / biaya).toFixed(1) : '-';
+    const selRoas = b.querySelector('[data-roas]');
+    selRoas.textContent = roas !== '-' ? roas + 'x' : '-';
+    selRoas.className = 'angka ' + (roas >= 5 ? 'bagus' : roas >= 2 ? 'sedang' : roas > 0 ? 'buruk' : '');
+}
+
+function hapusBaris(el){
+    if(confirm('Yakin hapus?')) el.parentElement.parentElement.remove();
+}
+
+async function simpanKeSheet(){
+    document.getElementById('statusInfo').textContent = "Menyimpan data...";
+    const semuaBaris = document.querySelectorAll('#tabelKOL tbody tr');
+    for(const baris of semuaBaris){
+        const data = {
+            no: baris.children[0].textContent,
+            nama: baris.children[1].querySelector('input').value,
+            komisi: baris.children[2].querySelector('input').value,
+            fee: baris.children[3].querySelector('input').value,
+            omset: baris.children[4].querySelector('input').value,
+            pesanan: baris.children[5].querySelector('input').value,
+            bayar: baris.children[6].textContent,
+            roas: baris.children[7].textContent,
+            status: baris.children[8].querySelector('select').value
+        };
+        await fetch(TAUTAN_SHEET, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        });
+    }
+    document.getElementById('statusInfo').textContent = "✅ Tersimpan ke Google Sheets!";
+}
+
+async function ambilDariSheet(){
+    document.getElementById('statusInfo').textContent = "Mengambil data...";
+    try{
+        const res = await fetch(TAUTAN_SHEET);
+        const data = await res.json();
+        const tbody = document.querySelector('#tabelKOL tbody');
+        tbody.innerHTML = "";
+        nomor = 0;
+        if(data.length > 0){
+            data.forEach(baris => {
+                tambahBaris();
+                const b = tbody.lastElementChild;
+                b.children[1].querySelector('input').value = baris[1] || "";
+                b.children[2].querySelector('input').value = baris[2] || 0;
+                b.children[3].querySelector('input').value = baris[3] || 0;
+                b.children[4].querySelector('input').value = baris[4] || 0;
+                b.children[5].querySelector('input').value = baris[5] || 0;
+                hitung(b.children[2].querySelector('input'));
+                b.children[8].querySelector('select').value = baris[8] || "Menunggu";
+            });
+        }
+        document.getElementById('statusInfo').textContent = "✅ Data terbaru dimuat!";
+    }catch{
+        document.getElementById('statusInfo').textContent = "⚠️ Belum ada data atau sambungkan dulu tautan!";
+    }
+}
+</script>
+</body>
+</html>
