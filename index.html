@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Pengelola KOL - Laporan Lengkap</title>
+    <title>Dashboard KOL - Lengkap Masa Kerjasama</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         *{margin:0; padding:0; font-family:'Segoe UI', Roboto, Arial, sans-serif; box-sizing:border-box;}
         :root{--utama:#165DFF; --sukses:#00B42A; --peringatan:#FF7D00; --bahaya:#F53F3F; --abu:#86909C; --bg:#F7F8FA; --putih:#FFFFFF; --bayangan:0 2px 8px rgba(0,0,0,0.08);}
-        body{background:var(--bg); padding:15px; max-width:1280px; margin:0 auto;}
+        body{background:var(--bg); padding:15px; max-width:1350px; margin:0 auto;}
         h1{color:#1D2129; text-align:center; margin-bottom:20px; font-size:24px;}
         .tombol{padding:8px 16px; border:none; border-radius:6px; cursor:pointer; font-weight:600; font-size:13px; margin:4px; transition:0.2s;}
         .tambah{background:var(--utama); color:white;}
@@ -17,108 +17,110 @@
         .hapus{background:var(--bahaya); color:white;}
         .tombol:hover{opacity:0.9;}
 
-        /* KARTU RINGKASAN */
-        .ringkasan{display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px; margin-bottom:20px;}
+        .ringkasan{display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:12px; margin-bottom:20px;}
         .kartu{background:var(--putih); padding:15px; border-radius:8px; box-shadow:var(--bayangan); border-left:4px solid var(--utama);}
         .kartu h3{font-size:12px; color:var(--abu); margin-bottom:5px;}
-        .kartu .angka{font-size:22px; font-weight:700; color:#1D2129;}
+        .kartu .angka{font-size:20px; font-weight:700; color:#1D2129;}
         .kartu.ke2{border-left-color:var(--sukses);}
         .kartu.ke3{border-left-color:var(--peringatan);}
         .kartu.ke4{border-left-color:var(--bahaya);}
+        .kartu.ke5{border-left-color:#722ED1;}
 
-        /* GRAFIK */
         .bagrafik{display:grid; grid-template-columns:2fr 1fr; gap:15px; margin-bottom:20px;}
         @media(max-width:768px){.bagrafik{grid-template-columns:1fr;}}
         .kotak-grafik{background:var(--putih); padding:15px; border-radius:8px; box-shadow:var(--bayangan);}
         .kotak-grafik h4{margin-bottom:10px; color:#4E5969; font-size:14px;}
 
-        /* === BAGIAN BARU: ANALISIS & KESIMPULAN === */
         .bag-analisis{background:linear-gradient(to right, #E8F3FF, #F2F9FF); padding:18px; border-radius:8px; box-shadow:var(--bayangan); margin-bottom:20px; border-left:5px solid var(--utama);}
         .bag-analisis h3{color:var(--utama); margin-bottom:10px; font-size:16px;}
         .bag-analisis p{font-size:13px; line-height:1.7; color:#4E5969; margin-bottom:5px;}
         .bag-analisis .saran{margin-top:8px; padding-top:8px; border-top:1px dashed #C9CDD4; color:#F53F3F; font-weight:500;}
 
-        /* TABEL */
         table{width:100%; border-collapse:collapse; margin-top:10px; background:var(--putih); border-radius:8px; overflow:hidden; box-shadow:var(--bayangan);}
-        th, td{padding:10px 6px; text-align:center; border-bottom:1px solid #E5E6EB; font-size:12px;}
+        th, td{padding:9px 5px; text-align:center; border-bottom:1px solid #E5E6EB; font-size:11px;}
         th{background:var(--utama); color:white; font-weight:600;}
         tr:hover{background:#F2F3F5;}
-        input, select{width:100%; padding:5px; border:1px solid #C9CDD4; border-radius:4px; text-align:center; font-size:12px;}
+        input, select{width:100%; padding:4px; border:1px solid #C9CDD4; border-radius:4px; text-align:center; font-size:11px;}
+        input[type="date"]{padding:3px;}
         .angka{font-weight:600;}
         .bagus{color:var(--sukses);}
         .sedang{color:var(--peringatan);}
         .buruk{color:var(--bahaya);}
+        .status-kontrak{font-weight:600;}
+        .aktif{color:var(--sukses);}
+        .segera{color:var(--peringatan);}
+        .habis{color:var(--bahaya);}
         .status{margin-top:12px; font-size:12px; color:#4E5969; text-align:center; padding:8px; border-radius:6px; background:#E8F3FF;}
     </style>
 </head>
 <body>
-    <h1>📊 Dashboard Pengelola KOL & Laporan Analisis</h1>
+    <h1>📊 Dashboard Pengelola KOL & Masa Kontrak</h1>
 
-    <!-- KARTU RINGKASAN -->
     <div class="ringkasan">
         <div class="kartu">
-            <h3>Total KOL Aktif</h3>
+            <h3>Total KOL</h3>
             <div class="angka" id="totKOL">0</div>
         </div>
         <div class="kartu ke2">
+            <h3>Sedang Berjalan</h3>
+            <div class="angka" id="totAktif">0</div>
+        </div>
+        <div class="kartu ke3">
+            <h3>Segera Berakhir</h3>
+            <div class="angka" id="totSegera">0</div>
+        </div>
+        <div class="kartu ke4">
             <h3>Total Omset (Rp)</h3>
             <div class="angka" id="totOmset">0</div>
         </div>
-        <div class="kartu ke3">
-            <h3>Total Pembayaran (Rp)</h3>
-            <div class="angka" id="totBayar">0</div>
-        </div>
-        <div class="kartu ke4">
+        <div class="kartu ke5">
             <h3>Rata-rata ROAS</h3>
             <div class="angka" id="rataROAS">0x</div>
         </div>
     </div>
 
-    <!-- TOMBOL -->
     <div style="text-align:center; margin-bottom:15px;">
-        <button class="tombol tambah" onclick="tambahBaris()">➕ Tambah Data KOL</button>
-        <button class="tombol simpan" onclick="simpanKeSheet()">💾 Simpan ke Database</button>
-        <button class="tombol muat" onclick="ambilDariSheet()">📈 Muat Ulang & Analisis Data</button>
+        <button class="tombol tambah" onclick="tambahBaris()">➕ Tambah KOL</button>
+        <button class="tombol simpan" onclick="simpanKeSheet()">💾 Simpan ke Sheets</button>
+        <button class="tombol muat" onclick="ambilDariSheet()">📈 Muat & Analisis</button>
     </div>
 
-    <!-- === BAGIAN BARU: LAPORAN KESIMPULAN & ANALISIS === -->
     <div class="bag-analisis" id="kotakAnalisis">
-        <h3>📑 Kesimpulan & Analisis Performa</h3>
-        <p id="isiAnalisis">Klik tombol <b>"Muat Ulang & Analisis Data"</b> untuk melihat hasil evaluasi performa keseluruhan dan saran langkah selanjutnya.</p>
+        <h3>📑 Kesimpulan & Pantauan Masa Kerjasama</h3>
+        <p id="isiAnalisis">Klik tombol <b>"Muat & Analisis"</b> untuk melihat ringkasan, saran, dan status masa kontrak setiap KOL.</p>
     </div>
 
-    <!-- GRAFIK -->
     <div class="bagrafik">
         <div class="kotak-grafik">
-            <h4>Grafik Omset & Efektivitas (ROAS)</h4>
+            <h4>Omset & ROAS Tiap KOL</h4>
             <canvas id="grafikPerforma" height="220"></canvas>
         </div>
         <div class="kotak-grafik">
-            <h4>Distribusi Status Kerjasama</h4>
+            <h4>Status Kerjasama</h4>
             <canvas id="grafikStatus" height="220"></canvas>
         </div>
     </div>
 
-    <!-- TABEL DATA -->
     <table id="tabelKOL">
         <thead>
             <tr>
                 <th>No</th>
                 <th>Nama Akun</th>
+                <th>Mulai</th>
+                <th>Berakhir</th>
                 <th>Komisi %</th>
                 <th>Fee (Rp)</th>
                 <th>Omset (Rp)</th>
-                <th>Pesanan</th>
                 <th>Bayar (Rp)</th>
                 <th>ROAS</th>
-                <th>Status</th>
+                <th>Status Kontrak</th>
                 <th>Aksi</th>
             </tr>
         </thead>
         <tbody></tbody>
     </table>
 
-    <div class="status" id="statusInfo">Siap memproses data</div>
+    <div class="status" id="statusInfo">Siap digunakan</div>
 
 <script>
 const TAUTAN_SHEET = "https://script.google.com/macros/s/AKfycbwbQku3MBzb5OIsJDCxkMIb6_Hqc9M_zR-Z7vkEQ_FlN_SMlisxz7mCIkCujFzVhW1q/exec";
@@ -133,20 +135,14 @@ function tambahBaris(){
     baris.innerHTML = `
         <td>${nomor}</td>
         <td><input type="text" placeholder="@akun"></td>
+        <td><input type="date"></td>
+        <td><input type="date"></td>
         <td><input type="number" min="0" oninput="hitung(this)"></td>
         <td><input type="number" min="0" oninput="hitung(this)"></td>
         <td><input type="number" min="0" oninput="hitung(this)"></td>
-        <td><input type="number" min="0"></td>
         <td class="angka" data-bayar>-</td>
         <td class="angka" data-roas>-</td>
-        <td>
-            <select>
-                <option>Menunggu</option>
-                <option>Berjalan</option>
-                <option>Selesai</option>
-                <option>Berhenti</option>
-            </select>
-        </td>
+        <td class="status-kontrak">-</td>
         <td><button class="tombol hapus" onclick="hapusBaris(this)">×</button></td>
     `;
     tbody.appendChild(baris);
@@ -154,9 +150,9 @@ function tambahBaris(){
 
 function hitung(el){
     const b = el.parentElement.parentElement;
-    const komisi = parseFloat(b.children[2].querySelector('input').value) || 0;
-    const fee = parseFloat(b.children[3].querySelector('input').value) || 0;
-    const omset = parseFloat(b.children[4].querySelector('input').value) || 0;
+    const komisi = parseFloat(b.children[4].querySelector('input').value) || 0;
+    const fee = parseFloat(b.children[5].querySelector('input').value) || 0;
+    const omset = parseFloat(b.children[6].querySelector('input').value) || 0;
 
     const totalBayar = omset * komisi / 100 + fee;
     b.querySelector('[data-bayar]').textContent = totalBayar > 0 ? totalBayar.toLocaleString('id-ID') : '-';
@@ -166,131 +162,127 @@ function hitung(el){
     const selRoas = b.querySelector('[data-roas]');
     selRoas.textContent = roas !== '-' ? roas + 'x' : '-';
     selRoas.className = 'angka ' + (roas >= 5 ? 'bagus' : roas >= 2 ? 'sedang' : roas > 0 ? 'buruk' : '');
+
+    const tglAkhir = b.children[3].querySelector('input').value;
+    const statusKontrak = b.querySelector('.status-kontrak');
+    if(tglAkhir){
+        const akhir = new Date(tglAkhir);
+        const sekarang = new Date();
+        const sisa = Math.ceil((akhir - sekarang) / (1000*60*60*24));
+        if(sisa < 0){
+            statusKontrak.textContent = "Sudah Habis"; statusKontrak.className = "status-kontrak habis";
+        }else if(sisa <= 7){
+            statusKontrak.textContent = `Sisa ${sisa} hari`; statusKontrak.className = "status-kontrak segera";
+        }else{
+            statusKontrak.textContent = "Berjalan"; statusKontrak.className = "status-kontrak aktif";
+        }
+    }else{
+        statusKontrak.textContent = "-"; statusKontrak.className = "status-kontrak";
+    }
 }
 
 function hapusBaris(el){
-    if(confirm('Yakin hapus data ini?')) el.parentElement.parentElement.remove();
+    if(confirm('Yakin hapus?')) el.parentElement.parentElement.remove();
 }
 
 async function simpanKeSheet(){
-    document.getElementById('statusInfo').textContent = "Menyimpan data ke database...";
+    document.getElementById('statusInfo').textContent = "Menyimpan data...";
     const semuaBaris = document.querySelectorAll('#tabelKOL tbody tr');
     let sukses = 0;
     for(const baris of semuaBaris){
         const data = {
             no: baris.children[0].textContent,
             nama: baris.children[1].querySelector('input').value,
-            komisi: baris.children[2].querySelector('input').value,
-            fee: baris.children[3].querySelector('input').value,
-            omset: baris.children[4].querySelector('input').value,
-            pesanan: baris.children[5].querySelector('input').value,
-            bayar: baris.children[6].textContent,
-            roas: baris.children[7].textContent,
-            status: baris.children[8].querySelector('select').value
+            mulai: baris.children[2].querySelector('input').value,
+            berakhir: baris.children[3].querySelector('input').value,
+            komisi: baris.children[4].querySelector('input').value,
+            fee: baris.children[5].querySelector('input').value,
+            omset: baris.children[6].querySelector('input').value,
+            bayar: baris.children[7].textContent,
+            roas: baris.children[8].textContent,
+            status: baris.children[9].textContent
         };
         try{
             await fetch(TAUTAN_SHEET, {
-                method: 'POST',
-                mode: 'no-cors',
+                method: 'POST', mode: 'no-cors',
                 headers: {"Content-Type": "text/plain;charset=utf-8"},
                 body: JSON.stringify(data)
             });
             sukses++;
         }catch(e){console.log(e);}
     }
-    document.getElementById('statusInfo').textContent = sukses>0 ? `✅ Berhasil menyimpan ${sukses} data!` : "⚠️ Terjadi kendala saat menyimpan";
+    document.getElementById('statusInfo').textContent = sukses>0 ? `✅ Tersimpan ${sukses} data!` : "⚠️ Gagal simpan";
 }
 
 async function ambilDariSheet(){
-    document.getElementById('statusInfo').textContent = "Mengolah data & menyusun analisis...";
+    document.getElementById('statusInfo').textContent = "Mengambil & menganalisis...";
     try{
         const res = await fetch(TAUTAN_SHEET);
         const data = await res.json();
         const tbody = document.querySelector('#tabelKOL tbody');
         tbody.innerHTML = ""; nomor = 0;
-        let totalOmset=0, totalBayar=0, totalRoas=0, jmlRoas=0;
+        let totalOmset=0, totalBayar=0, totalRoas=0, jmlRoas=0, aktif=0, segera=0;
         let namaKOL=[], nilaiOmset=[], nilaiRoas=[], hitungStatus={};
-        let teratas={nama:'', roas:0, omset:0};
+        let teratas={nama:'', roas:0};
 
         if(data.length>0){
             data.forEach(baris=>{
                 if(!baris[2]) return;
                 tambahBaris(); const b = tbody.lastElementChild;
                 b.children[1].querySelector('input').value = baris[2]||"";
-                b.children[2].querySelector('input').value = baris[3]||0;
-                b.children[3].querySelector('input').value = baris[4]||0;
+                b.children[2].querySelector('input').value = baris[3]||"";
+                b.children[3].querySelector('input').value = baris[4]||"";
                 b.children[4].querySelector('input').value = baris[5]||0;
                 b.children[5].querySelector('input').value = baris[6]||0;
-                hitung(b.children[2].querySelector('input'));
-                b.children[8].querySelector('select').value = baris[9]||"Menunggu";
+                b.children[6].querySelector('input').value = baris[7]||0;
+                hitung(b.children[4].querySelector('input'));
 
-                const o = parseFloat(baris[5])||0;
-                const bn = parseFloat(baris[7])||0;
-                const rs = parseFloat(b.children[7].textContent)||0;
-                totalOmset += o; totalBayar += bn;
+                const o = parseFloat(baris[7])||0;
+                const rs = parseFloat(b.children[8].textContent)||0;
+                totalOmset += o;
                 if(rs>0){totalRoas += rs; jmlRoas++;}
                 namaKOL.push(baris[2]); nilaiOmset.push(o); nilaiRoas.push(rs);
-                hitungStatus[baris[9]] = (hitungStatus[baris[9]]||0)+1;
+                hitungStatus[b.children[9].textContent] = (hitungStatus[b.children[9].textContent]||0)+1;
 
-                if(rs > teratas.roas){ teratas.nama=baris[2]; teratas.roas=rs; teratas.omset=o; }
+                if(b.children[9].classList.contains('aktif')) aktif++;
+                if(b.children[9].classList.contains('segera')) segera++;
+                if(rs > teratas.roas){ teratas.nama=baris[2]; teratas.roas=rs; }
             });
         }
 
-        // TAMPILKAN ANGKA RINGKASAN
         document.getElementById('totKOL').textContent = nomor;
+        document.getElementById('totAktif').textContent = aktif;
+        document.getElementById('totSegera').textContent = segera;
         document.getElementById('totOmset').textContent = totalOmset.toLocaleString('id-ID');
-        document.getElementById('totBayar').textContent = totalBayar.toLocaleString('id-ID');
         const rataR = jmlRoas>0 ? (totalRoas/jmlRoas).toFixed(1) : '0';
         document.getElementById('rataROAS').textContent = rataR+'x';
 
-        // === MENYUSUN LAPORAN ANALISIS OTOMATIS ===
-        let teksAnalisis = '';
-        if(nomor === 0){
-            teksAnalisis = `<b>Belum ada data kerjasama yang tercatat.</b><br>Mulai masukkan data KOL untuk melihat evaluasi kinerja secara menyeluruh.`;
+        let teks = '';
+        if(nomor===0){
+            teks = `<b>Belum ada data.</b> Mulai masukkan KOL beserta tanggal mulai dan berakhir kerjasama.`;
         }else{
-            teksAnalisis = `<b>📊 Ringkasan Performa:</b><br>
-            - Total kerjasama: ${nomor} KOL<br>
-            - Total pendapatan: Rp ${totalOmset.toLocaleString('id-ID')}<br>
-            - Total biaya operasional: Rp ${totalBayar.toLocaleString('id-ID')}<br>
-            - Tingkat efektivitas rata-rata: ${rataR}x`;
-
-            teksAnalisis += `<br><br><b>🏆 Pencapaian Terbaik:</b><br>
-            KOL <b>${teratas.nama}</b> menjadi yang paling efektif dengan hasil ROAS sebesar <b>${teratas.roas}x</b> dan menyumbang omset Rp ${teratas.omset.toLocaleString('id-ID')}.`;
-
-            teksAnalisis += `<div class="saran">💡 Saran & Rekomendasi:<br>`;
-            if(parseFloat(rataR) >= 5){
-                teksAnalisis += `✅ Kinerja sangat bagus! Pertahankan kerjasama dengan pihak yang sudah ada dan perluas jangkauan yang sejenis.`;
-            }else if(parseFloat(rataR) >= 2){
-                teksAnalisis += `⚠️ Kinerja cukup baik, namun masih bisa ditingkatkan. Evaluasi ulang besaran komisi dan konten yang kurang berdampak.`;
-            }else{
-                teksAnalisis += `🔴 Perlu perbaikan segera. Lakukan seleksi ulang KOL, tinjau ulang besaran biaya, dan perbaiki arah strategi promosi.`;
-            }
-            teksAnalisis += `</div>`;
+            teks = `<b>📊 Ringkasan:</b><br>
+            - Total: ${nomor} KOL | Berjalan: ${aktif} | Segera habis: ${segera}<br>
+            - Total Omset: Rp ${totalOmset.toLocaleString('id-ID')} | Rata-rata ROAS: ${rataR}x<br>
+            - Terbaik: ${teratas.nama} (ROAS ${teratas.roas}x)`;
+            teks += `<div class="saran">💡 Pantauan:<br>`;
+            if(segera>0) teks += `🔴 Ada ${segera} kerjasama yang akan berakhir dalam 7 hari, segera tindak lanjuti!<br>`;
+            if(parseFloat(rataR)>=5) teks += `✅ Kinerja sangat bagus, pertahankan kerjasama yang ada.<br>`;
+            else if(parseFloat(rataR)>=2) teks += `⚠️ Cukup baik, evaluasi yang hasilnya kurang maksimal.`;
+            else teks += `🔴 Perlu perbaikan strategi dan pemilihan KOL kembali.`;
+            teks += `</div>`;
         }
-        document.getElementById('isiAnalisis').innerHTML = teksAnalisis;
+        document.getElementById('isiAnalisis').innerHTML = teks;
 
-        // MEMBUAT GRAFIK
         if(grafik1) grafik1.destroy();
         grafik1 = new Chart(document.getElementById('grafikPerforma'),{
-            type:'bar',
-            data:{labels:namaKOL,datasets:[
-                {label:'Omset (Juta Rp)',data:nilaiOmset.map(x=>x/1000000),backgroundColor:'#165DFF80',borderColor:'#165DFF',borderWidth:1},
-                {label:'ROAS',data:nilaiRoas,type:'line',borderColor:'#00B42A',backgroundColor:'transparent',borderWidth:2,yAxisID:'y1'}
-            ]},
-            options:{responsive:true,scales:{y:{title:{display:true,text:'Nilai Omset'}},y1:{position:'right',title:{display:true,text:'Nilai ROAS'}}}}
+            type:'bar',data:{labels:namaKOL,datasets:[{label:'Omset (Juta)',data:nilaiOmset.map(x=>x/1000000),backgroundColor:'#165DFF80'},{label:'ROAS',data:nilaiRoas,type:'line',borderColor:'#00B42A',yAxisID:'y1'}]},
+            options:{responsive:true,scales:{y:{title:{text:'Omset'}},y1:{position:'right',title:{text:'ROAS'}}}}
         });
-
         if(grafik2) grafik2.destroy();
-        grafik2 = new Chart(document.getElementById('grafikStatus'),{
-            type:'doughnut',
-            data:{labels:Object.keys(hitungStatus),datasets:[{data:Object.values(hitungStatus),backgroundColor:['#165DFF','#00B42A','#FF7D00','#F53F3F']}]},
-            options:{responsive:true}
-        });
-
-        document.getElementById('statusInfo').textContent = "✅ Analisis lengkap & data terbaru telah dimuat!";
-    }catch{
-        document.getElementById('statusInfo').textContent = "⚠️ Pastikan koneksi lancar dan tautan sudah benar";
-    }
+        grafik2 = new Chart(document.getElementById('grafikStatus'),{type:'doughnut',data:{labels:Object.keys(hitungStatus),datasets:[{data:Object.values(hitungStatus)}]},options:{responsive:true}});
+        document.getElementById('statusInfo').textContent = "✅ Data & pantauan masa kontrak siap!";
+    }catch{document.getElementById('statusInfo').textContent = "⚠️ Pastikan tautan sudah benar";}
 }
 </script>
 </body>
