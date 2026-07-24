@@ -3,202 +3,148 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard KOL - Urutan Benar</title>
+    <title>KOL Manager</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        *{margin:0; padding:0; font-family:'Segoe UI', Arial, sans-serif; box-sizing:border-box;}
-        :root{--utama:#165DFF; --sukses:#00B42A; --peringatan:#FF7D00; --bahaya:#F53F3F; --abu:#86909C; --bg:#F7F8FA; --putih:#FFFFFF;}
-        body{background:var(--bg); padding:15px; max-width:1350px; margin:0 auto;}
-        h1{color:#1D2129; text-align:center; margin-bottom:20px; font-size:24px;}
-        .tombol{padding:8px 16px; border:none; border-radius:6px; cursor:pointer; font-weight:600; font-size:13px; margin:4px;}
-        .tambah{background:var(--utama); color:white;}
-        .simpan{background:var(--sukses); color:white;}
-        .muat{background:var(--peringatan); color:white;}
-        .hapus{background:var(--bahaya); color:white;}
-        .ringkasan{display:grid; grid-template-columns:repeat(auto-fit, minmax(180px,1fr)); gap:12px; margin-bottom:20px;}
-        .kartu{background:var(--putih); padding:15px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.08); border-left:4px solid var(--utama);}
-        .kartu h3{font-size:12px; color:var(--abu); margin-bottom:5px;}
-        .kartu .angka{font-size:20px; font-weight:700;}
-        .kartu.ke2{border-left-color:var(--sukses);}
-        .kartu.ke3{border-left-color:var(--peringatan);}
-        .kartu.ke4{border-left-color:var(--bahaya);}
-        .kartu.ke5{border-left-color:#722ED1;}
-        .bagrafik{display:grid; grid-template-columns:2fr 1fr; gap:15px; margin-bottom:20px;}
-        @media(max-width:768px){.bagrafik{grid-template-columns:1fr;}}
-        .kotak-grafik{background:var(--putih); padding:15px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.08);}
-        .bag-analisis{background:linear-gradient(to right, #E8F3FF, #F2F9FF); padding:18px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.08); margin-bottom:20px; border-left:5px solid var(--utama);}
-        .bag-analisis h3{color:var(--utama); margin-bottom:10px; font-size:16px;}
-        table{width:100%; border-collapse:collapse; margin-top:10px; background:var(--putih); border-radius:8px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.08);}
-        th, td{padding:9px 5px; text-align:center; border-bottom:1px solid #E5E6EB; font-size:11px;}
-        th{background:var(--utama); color:white; font-weight:600;}
-        input, select{width:100%; padding:4px; border:1px solid #C9CDD4; border-radius:4px; text-align:center; font-size:11px;}
-        input[type="date"]{padding:3px;}
-        .angka{font-weight:600;}
-        .bagus{color:var(--sukses);}
-        .sedang{color:var(--peringatan);}
-        .buruk{color:var(--bahaya);}
-        .aktif{color:var(--sukses); font-weight:600;}
-        .segera{color:var(--peringatan); font-weight:600;}
-        .habis{color:var(--bahaya); font-weight:600;}
-        .status{margin-top:12px; font-size:12px; color:#4E5969; text-align:center; padding:8px; border-radius:6px; background:#E8F3FF;}
+        *{margin:0; padding:0; font-family:Arial, sans-serif; box-sizing:border-box;}
+        body{max-width:1200px; margin:20px auto; padding:0 15px; background:#f5f7fa;}
+        h1{text-align:center; color:#165DFF; margin-bottom:20px;}
+        .btn{padding:7px 12px; border:none; border-radius:4px; color:white; cursor:pointer; margin:2px;}
+        .bt1{background:#165DFF;} .bt2{background:#00B42A;} .bt3{background:#FF7D00;} .bt4{background:#F53F3F;}
+        table{width:100%; border-collapse:collapse; background:white; margin-top:15px; border-radius:6px; overflow:hidden;}
+        th,td{border:1px solid #eee; padding:6px; text-align:center; font-size:12px;}
+        th{background:#165DFF; color:white;}
+        input,select{width:100%; padding:4px; border:1px solid #ddd; border-radius:3px; text-align:center;}
+        .ring{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; margin-bottom:15px;}
+        .kotak{background:white; padding:12px; border-radius:6px; border-left:4px solid #165DFF;}
+        .kotak b{font-size:18px;}
     </style>
 </head>
 <body>
-    <h1>📊 Dashboard Pengelola KOL</h1>
-    <div class="ringkasan">
-        <div class="kartu"><h3>Total KOL</h3><div class="angka" id="totKOL">0</div></div>
-        <div class="kartu ke2"><h3>Sedang Berjalan</h3><div class="angka" id="totAktif">0</div></div>
-        <div class="kartu ke3"><h3>Segera Berakhir</h3><div class="angka" id="totSegera">0</div></div>
-        <div class="kartu ke4"><h3>Total Omset (Rp)</h3><div class="angka" id="totOmset">0</div></div>
-        <div class="kartu ke5"><h3>Rata-rata ROAS</h3><div class="angka" id="rataROAS">0x</div></div>
-    </div>
-    <div style="text-align:center; margin-bottom:15px;">
-        <button class="tombol tambah" onclick="tambahBaris()">➕ Tambah KOL</button>
-        <button class="tombol simpan" onclick="simpanKeSheet()">💾 Simpan ke Sheets</button>
-        <button class="tombol muat" onclick="ambilDariSheet()">📈 Muat & Analisis</button>
-    </div>
-    <div class="bag-analisis" id="kotakAnalisis"><h3>📑 Kesimpulan & Pantauan Kontrak</h3><p id="isiAnalisis">Klik "Muat & Analisis" untuk melihat ringkasan.</p></div>
-    <div class="bagrafik">
-        <div class="kotak-grafik"><h4>Omset & ROAS</h4><canvas id="grafikPerforma" height="220"></canvas></div>
-        <div class="kotak-grafik"><h4>Status Kerjasama</h4><canvas id="grafikStatus" height="220"></canvas></div>
-    </div>
-    <table id="tabelKOL">
-        <thead>
-            <tr>
-                <th>No</th>
-                <th>Nama Akun</th>
-                <th>Tgl Mulai</th>
-                <th>Tgl Berakhir</th>
-                <th>Komisi %</th>
-                <th>Fee (Rp)</th>
-                <th>Omset (Rp)</th>
-                <th>Total Bayar (Rp)</th>
-                <th>ROAS</th>
-                <th>Status Kontrak</th>
-                <th>Aksi</th>
-            </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
-    <div class="status" id="statusInfo">Siap digunakan</div>
+<h1>📊 Pengelola KOL</h1>
+
+<div class="ring">
+    <div class="kotak"><div>Total KOL</div><b id="t1">0</b></div>
+    <div class="kotak" style="border-left-color:#00B42A"><div>Aktif</div><b id="t2">0</b></div>
+    <div class="kotak" style="border-left-color:#FF7D00"><div>Segera Habis</div><b id="t3">0</b></div>
+    <div class="kotak" style="border-left-color:#F53F3F"><div>Total Omset</div><b id="t4">0</b></div>
+</div>
+
+<div style="text-align:center; margin-bottom:10px;">
+<button class="btn bt1" onclick="tambah()">+ Tambah</button>
+<button class="btn bt2" onclick="simpan()">💾 Simpan</button>
+<button class="btn bt3" onclick="muat()">🔄 Muat Ulang</button>
+</div>
+
+<table id="tbl">
+<thead>
+<tr>
+<th>No</th>
+<th>Nama Akun</th>
+<th>Tgl Mulai</th>
+<th>Tgl Berakhir</th>
+<th>Komisi %</th>
+<th>Fee (Rp)</th>
+<th>Omset (Rp)</th>
+<th>Total Bayar</th>
+<th>ROAS</th>
+<th>Status</th>
+<th>Aksi</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+<div id="stat" style="text-align:center; margin-top:10px; font-size:12px;">Siap</div>
 
 <script>
-const TAUTAN_SHEET = "https://script.google.com/macros/s/AKfycbwbQku3MBzb5OIsJDCxkMIb6_Hqc9M_zR-Z7vkEQ_FlN_SMlisxz7mCIkCujFzVhW1q/exec";
-let nomor = 0, grafik1, grafik2;
+const URL = "https://script.google.com/macros/s/AKfycbwbQku3MBzb5OIsJDCxkMIb6_Hqc9M_zR-Z7vkEQ_FlN_SMlisxz7mCIkCujFzVhW1q/exec";
+let n=0;
 
-window.onload = ambilDariSheet;
+window.onload=muat;
 
-function tambahBaris(){
-    nomor++;
-    const tbody = document.querySelector('#tabelKOL tbody');
-    const baris = document.createElement('tr');
-    baris.innerHTML = `
-        <td>${nomor}</td>
-        <td><input type="text" placeholder="@akun"></td>
-        <td><input type="date"></td>
-        <td><input type="date"></td>
-        <td><input type="number" min="0" oninput="hitung(this)"></td>
-        <td><input type="number" min="0" oninput="hitung(this)"></td>
-        <td><input type="number" min="0" oninput="hitung(this)"></td>
-        <td class="angka" data-bayar>-</td>
-        <td class="angka" data-roas>-</td>
-        <td class="status-kontrak">-</td>
-        <td><button class="tombol hapus" onclick="hapusBaris(this)">×</button></td>
-    `;
-    tbody.appendChild(baris);
+function tambah(){
+n++;
+const tb=document.querySelector('#tbl tbody');
+const r=document.createElement('tr');
+r.innerHTML=`
+<td>${n}</td>
+<td><input type="text"></td>
+<td><input type="date"></td>
+<td><input type="date"></td>
+<td><input type="number" min="0" oninput="hitung(this)"></td>
+<td><input type="number" min="0" oninput="hitung(this)"></td>
+<td><input type="number" min="0" oninput="hitung(this)"></td>
+<td data-bayar>-</td>
+<td data-roas>-</td>
+<td>-</td>
+<td><button class="btn bt4" onclick="hapus(this)">×</button></td>
+`;
+tb.appendChild(r);
 }
 
 function hitung(el){
-    const b = el.parentElement.parentElement;
-    const komisi = parseFloat(b.children[4].querySelector('input').value) || 0;
-    const fee = parseFloat(b.children[5].querySelector('input').value) || 0;
-    const omset = parseFloat(b.children[6].querySelector('input').value) || 0;
-    const totalBayar = omset * komisi / 100 + fee;
-    b.querySelector('[data-bayar]').textContent = totalBayar > 0 ? totalBayar.toLocaleString('id-ID') : '-';
-    const biaya = omset * komisi / 100 + fee;
-    const roas = biaya > 0 ? (omset / biaya).toFixed(1) : '-';
-    const selRoas = b.querySelector('[data-roas]');
-    selRoas.textContent = roas !== '-' ? roas + 'x' : '-';
-    selRoas.className = 'angka ' + (roas >= 5 ? 'bagus' : roas >= 2 ? 'sedang' : roas > 0 ? 'buruk' : '');
-    const tglAkhir = b.children[3].querySelector('input').value;
-    const statusKontrak = b.querySelector('.status-kontrak');
-    if(tglAkhir){
-        const akhir = new Date(tglAkhir);
-        const sekarang = new Date();
-        const sisa = Math.ceil((akhir - sekarang) / (1000*60*60*24));
-        if(sisa < 0) statusKontrak.textContent = "Sudah Habis", statusKontrak.className = "habis";
-        else if(sisa <= 7) statusKontrak.textContent = `Sisa ${sisa} hari`, statusKontrak.className = "segera";
-        else statusKontrak.textContent = "Berjalan", statusKontrak.className = "aktif";
-    }else statusKontrak.textContent = "-";
+const b=el.parentElement.parentElement;
+const k=parseFloat(b.children[4].querySelector('input').value)||0;
+const f=parseFloat(b.children[5].querySelector('input').value)||0;
+const o=parseFloat(b.children[6].querySelector('input').value)||0;
+const bayar=o*k/100+f;
+b.querySelector('[data-bayar]').textContent=bayar>0?bayar.toLocaleString('id-ID'):'-';
+const roas=bayar>0?(o/bayar).toFixed(1):'-';
+b.querySelector('[data-roas]').textContent=roas!='-'?roas+'x':'-';
 }
 
-function hapusBaris(el){if(confirm('Yakin hapus?')) el.parentElement.parentElement.remove();}
+function hapus(el){if(confirm('Yakin?'))el.parentElement.parentElement.remove();}
 
-async function simpanKeSheet(){
-    document.getElementById('statusInfo').textContent = "Menyimpan...";
-    const semuaBaris = document.querySelectorAll('#tabelKOL tbody tr');
-    let sukses = 0;
-    for(const baris of semuaBaris){
-        // === KIRIM DATA DENGAN URUTAN YANG BENAR ===
-        const data = {
-            no: baris.children[0].textContent,
-            nama: baris.children[1].querySelector('input').value,
-            mulai: baris.children[2].querySelector('input').value,
-            berakhir: baris.children[3].querySelector('input').value,
-            komisi: baris.children[4].querySelector('input').value,
-            fee: baris.children[5].querySelector('input').value,
-            omset: baris.children[6].querySelector('input').value,
-            bayar: (parseFloat(baris.children[6].querySelector('input').value)||0)*(parseFloat(baris.children[4].querySelector('input').value)||0)/100 + (parseFloat(baris.children[5].querySelector('input').value)||0),
-            roas: baris.children[8].textContent,
-            status: baris.children[9].textContent
-        };
-        try{
-            await fetch(TAUTAN_SHEET, {method:'POST', mode:'no-cors', headers:{"Content-Type":"application/json"}, body:JSON.stringify(data)});
-            sukses++;
-        }catch(e){console.log(e);}
-    }
-    document.getElementById('statusInfo').textContent = sukses>0 ? `✅ Tersimpan ${sukses} data!` : "⚠️ Gagal simpan";
+async function simpan(){
+document.getElementById('stat').textContent='Menyimpan...';
+const baris=document.querySelectorAll('#tbl tbody tr');
+let ok=0;
+for(const b of baris){
+const data={
+no:b.children[0].textContent,
+nama:b.children[1].querySelector('input').value,
+mulai:b.children[2].querySelector('input').value,
+berakhir:b.children[3].querySelector('input').value,
+komisi:b.children[4].querySelector('input').value,
+fee:b.children[5].querySelector('input').value,
+omset:b.children[6].querySelector('input').value,
+bayar:b.children[7].textContent,
+roas:b.children[8].textContent,
+status:b.children[9].textContent
+};
+await fetch(URL,{method:'POST',mode:'no-cors',body:JSON.stringify(data)});
+ok++;
+}
+document.getElementById('stat').textContent=`✅ Tersimpan ${ok} data!`;
 }
 
-async function ambilDariSheet(){
-    document.getElementById('statusInfo').textContent = "Mengambil data...";
-    try{
-        const res = await fetch(TAUTAN_SHEET);
-        const data = await res.json();
-        const tbody = document.querySelector('#tabelKOL tbody');
-        tbody.innerHTML = ""; nomor = 0;
-        let totalOmset=0, totalBayar=0, totalRoas=0, jmlRoas=0, aktif=0, segera=0;
-        let namaKOL=[], nilaiOmset=[], nilaiRoas=[], hitungStatus={};
-        if(data.length>0){
-            data.forEach(baris=>{
-                if(!baris[2]) return;
-                tambahBaris(); const b = tbody.lastElementChild;
-                b.children[1].querySelector('input').value = baris[2]||"";
-                b.children[2].querySelector('input').value = baris[3]||"";
-                b.children[3].querySelector('input').value = baris[4]||"";
-                b.children[4].querySelector('input').value = baris[5]||0;
-                b.children[5].querySelector('input').value = baris[6]||0;
-                b.children[6].querySelector('input').value = baris[7]||0;
-                hitung(b.children[4].querySelector('input'));
-                const o = parseFloat(baris[7])||0;
-                const rs = parseFloat(b.children[8].textContent)||0;
-                totalOmset += o;
-                if(rs>0){totalRoas += rs; jmlRoas++;}
-                namaKOL.push(baris[2]); nilaiOmset.push(o); nilaiRoas.push(rs);
-                if(b.children[9].classList.contains('aktif')) aktif++;
-                if(b.children[9].classList.contains('segera')) segera++;
-            });
-        }
-        document.getElementById('totKOL').textContent = nomor;
-        document.getElementById('totAktif').textContent = aktif;
-        document.getElementById('totSegera').textContent = segera;
-        document.getElementById('totOmset').textContent = totalOmset.toLocaleString('id-ID');
-        const rataR = jmlRoas>0 ? (totalRoas/jmlRoas).toFixed(1) : '0';
-        document.getElementById('rataROAS').textContent = rataR+'x';
-        let teks = nomor===0 ? `<b>Belum ada data.</b>` : `<b>Ringkasan:</b><br>Total: ${nomor} | Aktif: ${aktif} | Segera habis: ${segera}<br>Omset: Rp ${totalOmset.toLocaleString('id-ID')} | ROAS rata: ${rataR}x`;
-        document.getElementById('isiAnalisis').innerHTML = teks;
-        document.getElementById('statusInfo').textContent = "✅ Data dimuat!";
-    }catch{document.getElementById('statusInfo').textContent = "⚠️ Cek koneksi & tautan";}
+async function muat(){
+document.getElementById('stat').textContent='Mengambil...';
+try{
+const res=await fetch(URL);
+const d=await res.json();
+const tb=document.querySelector('#tbl tbody');
+tb.innerHTML='';n=0;
+let totO=0,aktif=0,segera=0;
+if(d.length>0){
+d.forEach(x=>{if(!x[2])return;
+tambah();const b=tb.lastElementChild;
+b.children[1].querySelector('input').value=x[2]||'';
+b.children[2].querySelector('input').value=x[3]||'';
+b.children[3].querySelector('input').value=x[4]||'';
+b.children[4].querySelector('input').value=x[5]||0;
+b.children[5].querySelector('input').value=x[6]||0;
+b.children[6].querySelector('input').value=x[7]||0;
+hitung(b.children[4].querySelector('input'));
+totO+=parseFloat(x[7])||0;
+});
+}
+document.getElementById('t1').textContent=n;
+document.getElementById('t2').textContent=aktif;
+document.getElementById('t3').textContent=segera;
+document.getElementById('t4').textContent=totO.toLocaleString('id-ID');
+document.getElementById('stat').textContent='✅ Selesai dimuat!';
+}catch(e){document.getElementById('stat').textContent='⚠️ Cek kembali';}
 }
 </script>
 </body>
