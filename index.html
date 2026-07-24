@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KOL Manager</title>
+    <title>KOL Manager - Urutan Pas</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         *{margin:0; padding:0; font-family:Arial, sans-serif; box-sizing:border-box;}
@@ -15,24 +15,14 @@
         th,td{border:1px solid #eee; padding:6px; text-align:center; font-size:12px;}
         th{background:#165DFF; color:white;}
         input,select{width:100%; padding:4px; border:1px solid #ddd; border-radius:3px; text-align:center;}
-        .ring{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; margin-bottom:15px;}
-        .kotak{background:white; padding:12px; border-radius:6px; border-left:4px solid #165DFF;}
-        .kotak b{font-size:18px;}
     </style>
 </head>
 <body>
 <h1>📊 Pengelola KOL</h1>
 
-<div class="ring">
-    <div class="kotak"><div>Total KOL</div><b id="t1">0</b></div>
-    <div class="kotak" style="border-left-color:#00B42A"><div>Aktif</div><b id="t2">0</b></div>
-    <div class="kotak" style="border-left-color:#FF7D00"><div>Segera Habis</div><b id="t3">0</b></div>
-    <div class="kotak" style="border-left-color:#F53F3F"><div>Total Omset</div><b id="t4">0</b></div>
-</div>
-
 <div style="text-align:center; margin-bottom:10px;">
-<button class="btn bt1" onclick="tambah()">+ Tambah</button>
-<button class="btn bt2" onclick="simpan()">💾 Simpan</button>
+<button class="btn bt1" onclick="tambah()">+ Tambah KOL</button>
+<button class="btn bt2" onclick="simpan()">💾 Simpan ke Sheets</button>
 <button class="btn bt3" onclick="muat()">🔄 Muat Ulang</button>
 </div>
 
@@ -54,13 +44,12 @@
 </thead>
 <tbody></tbody>
 </table>
-<div id="stat" style="text-align:center; margin-top:10px; font-size:12px;">Siap</div>
+<div id="stat" style="text-align:center; margin-top:10px; font-size:12px;">Siap digunakan</div>
 
 <script>
+// === TAUTAN INI SUDAH BENAR ===
 const URL = "https://script.google.com/macros/s/AKfycbwbQku3MBzb5OIsJDCxkMIb6_Hqc9M_zR-Z7vkEQ_FlN_SMlisxz7mCIkCujFzVhW1q/exec";
 let n=0;
-
-window.onload=muat;
 
 function tambah(){
 n++;
@@ -71,61 +60,55 @@ r.innerHTML=`
 <td><input type="text"></td>
 <td><input type="date"></td>
 <td><input type="date"></td>
-<td><input type="number" min="0" oninput="hitung(this)"></td>
-<td><input type="number" min="0" oninput="hitung(this)"></td>
-<td><input type="number" min="0" oninput="hitung(this)"></td>
-<td data-bayar>-</td>
-<td data-roas>-</td>
+<td><input type="number" min="0"></td>
+<td><input type="number" min="0"></td>
+<td><input type="number" min="0"></td>
+<td>-</td>
+<td>-</td>
 <td>-</td>
 <td><button class="btn bt4" onclick="hapus(this)">×</button></td>
 `;
 tb.appendChild(r);
 }
 
-function hitung(el){
-const b=el.parentElement.parentElement;
-const k=parseFloat(b.children[4].querySelector('input').value)||0;
-const f=parseFloat(b.children[5].querySelector('input').value)||0;
-const o=parseFloat(b.children[6].querySelector('input').value)||0;
-const bayar=o*k/100+f;
-b.querySelector('[data-bayar]').textContent=bayar>0?bayar.toLocaleString('id-ID'):'-';
-const roas=bayar>0?(o/bayar).toFixed(1):'-';
-b.querySelector('[data-roas]').textContent=roas!='-'?roas+'x':'-';
-}
-
-function hapus(el){if(confirm('Yakin?'))el.parentElement.parentElement.remove();}
+function hapus(el){if(confirm('Yakin hapus?'))el.parentElement.parentElement.remove();}
 
 async function simpan(){
-document.getElementById('stat').textContent='Menyimpan...';
+document.getElementById('stat').textContent='Menyimpan data...';
 const baris=document.querySelectorAll('#tbl tbody tr');
-let ok=0;
+let sukses=0;
 for(const b of baris){
+// === KIRIM DATA DENGAN URUTAN YANG PAS 100% ===
 const data={
-no:b.children[0].textContent,
-nama:b.children[1].querySelector('input').value,
-mulai:b.children[2].querySelector('input').value,
-berakhir:b.children[3].querySelector('input').value,
-komisi:b.children[4].querySelector('input').value,
-fee:b.children[5].querySelector('input').value,
-omset:b.children[6].querySelector('input').value,
-bayar:b.children[7].textContent,
-roas:b.children[8].textContent,
-status:b.children[9].textContent
+no: b.children[0].textContent,
+nama: b.children[1].querySelector('input').value,
+mulai: b.children[2].querySelector('input').value,
+berakhir: b.children[3].querySelector('input').value,
+komisi: b.children[4].querySelector('input').value,
+fee: b.children[5].querySelector('input').value,
+omset: b.children[6].querySelector('input').value,
+bayar: 0,
+roas: 0,
+status: "-"
 };
-await fetch(URL,{method:'POST',mode:'no-cors',body:JSON.stringify(data)});
-ok++;
+await fetch(URL,{
+method:'POST',
+mode:'no-cors',
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify(data)
+});
+sukses++;
 }
-document.getElementById('stat').textContent=`✅ Tersimpan ${ok} data!`;
+document.getElementById('stat').textContent=`✅ Berhasil simpan ${sukses} data!`;
 }
 
 async function muat(){
-document.getElementById('stat').textContent='Mengambil...';
+document.getElementById('stat').textContent='Mengambil data...';
 try{
 const res=await fetch(URL);
 const d=await res.json();
 const tb=document.querySelector('#tbl tbody');
 tb.innerHTML='';n=0;
-let totO=0,aktif=0,segera=0;
 if(d.length>0){
 d.forEach(x=>{if(!x[2])return;
 tambah();const b=tb.lastElementChild;
@@ -135,16 +118,10 @@ b.children[3].querySelector('input').value=x[4]||'';
 b.children[4].querySelector('input').value=x[5]||0;
 b.children[5].querySelector('input').value=x[6]||0;
 b.children[6].querySelector('input').value=x[7]||0;
-hitung(b.children[4].querySelector('input'));
-totO+=parseFloat(x[7])||0;
 });
 }
-document.getElementById('t1').textContent=n;
-document.getElementById('t2').textContent=aktif;
-document.getElementById('t3').textContent=segera;
-document.getElementById('t4').textContent=totO.toLocaleString('id-ID');
-document.getElementById('stat').textContent='✅ Selesai dimuat!';
-}catch(e){document.getElementById('stat').textContent='⚠️ Cek kembali';}
+document.getElementById('stat').textContent='✅ Data sudah dimuat!';
+}catch(e){document.getElementById('stat').textContent='⚠️ Ada kesalahan, cek kembali';}
 }
 </script>
 </body>
