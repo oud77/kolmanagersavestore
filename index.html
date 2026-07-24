@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pengelola KOL - Tim Bersama</title>
+    <title>Pengelola KOL - Data Terpusat</title>
     <style>
         *{margin:0; padding:0; font-family:'Segoe UI', Arial, sans-serif; box-sizing:border-box;}
         body{background:#F8FAFC; padding:15px; max-width:1200px; margin:0 auto;}
@@ -58,7 +58,7 @@
     <div class="status" id="statusInfo">Siap digunakan</div>
 
 <script>
-const TAUTAN_SHEET = "https://script.google.com/macros/s/AKfycbyw8rgOeNRPiohQ0hdRJVJLRQmxqfcvwvYIYbOe70RlsmkaoW0_qTEPjKzkpEsIj3IU4wg/exec";
+const TAUTAN_SHEET = "https://script.google.com/macros/s/AKfycbwbQku3MBzb5OIsJDCxkMIb6_Hqc9M_zR-Z7vkEQ_FlN_SMlisxz7mCIkCujFzVhW1q/exec";
 
 let nomor = 0;
 
@@ -138,7 +138,7 @@ async function simpanKeSheet(){
             console.log(e);
         }
     }
-    document.getElementById('statusInfo').textContent = sukses>0 ? `✅ Tersimpan ${sukses} data! Klik Perbarui Data` : "⚠️ Gagal simpan, coba lagi";
+    document.getElementById('statusInfo').textContent = sukses>0 ? `✅ Tersimpan ${sukses} data! Cek langsung Google Sheets` : "⚠️ Gagal simpan, coba lagi";
 }
 
 async function ambilDariSheet(){
@@ -165,7 +165,7 @@ async function ambilDariSheet(){
         }
         document.getElementById('statusInfo').textContent = "✅ Data terbaru dimuat!";
     }catch{
-        document.getElementById('statusInfo').textContent = "⚠️ Pastikan tautan sudah benar!";
+        document.getElementById('statusInfo').textContent = "⚠️ Koneksi sudah siap, coba simpan data dulu!";
     }
 }
 </script>
