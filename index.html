@@ -58,7 +58,7 @@
     <div class="status" id="statusInfo">Siap digunakan</div>
 
 <script>
-const TAUTAN_SHEET = "https://script.google.com/macros/s/AKfycbwbQku3MBzb5OIsJDCxkMIb6_Hqc9M_zR-Z7vkEQ_FlN_SMlisxz7mCIkCujFzVhW1q/exec";
+const TAUTAN_SHEET = "https://script.google.com/macros/s/AKfycbyw8rgOeNRPiohQ0hdRJVJLRQmxqfcvwvYIYbOe70RlsmkaoW0_qTEPjKzkpEsIj3IU4wg/exec";
 
 let nomor = 0;
 
@@ -113,6 +113,7 @@ function hapusBaris(el){
 async function simpanKeSheet(){
     document.getElementById('statusInfo').textContent = "Menyimpan data...";
     const semuaBaris = document.querySelectorAll('#tabelKOL tbody tr');
+    let sukses = 0;
     for(const baris of semuaBaris){
         const data = {
             no: baris.children[0].textContent,
@@ -125,13 +126,19 @@ async function simpanKeSheet(){
             roas: baris.children[7].textContent,
             status: baris.children[8].querySelector('select').value
         };
-        await fetch(TAUTAN_SHEET, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(data)
-        });
+        try{
+            await fetch(TAUTAN_SHEET, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {"Content-Type": "text/plain;charset=utf-8"},
+                body: JSON.stringify(data)
+            });
+            sukses++;
+        }catch(e){
+            console.log(e);
+        }
     }
-    document.getElementById('statusInfo').textContent = "✅ Tersimpan ke Google Sheets!";
+    document.getElementById('statusInfo').textContent = sukses>0 ? `✅ Tersimpan ${sukses} data! Klik Perbarui Data` : "⚠️ Gagal simpan, coba lagi";
 }
 
 async function ambilDariSheet(){
@@ -144,20 +151,21 @@ async function ambilDariSheet(){
         nomor = 0;
         if(data.length > 0){
             data.forEach(baris => {
+                if(!baris[2]) return;
                 tambahBaris();
                 const b = tbody.lastElementChild;
-                b.children[1].querySelector('input').value = baris[1] || "";
-                b.children[2].querySelector('input').value = baris[2] || 0;
-                b.children[3].querySelector('input').value = baris[3] || 0;
-                b.children[4].querySelector('input').value = baris[4] || 0;
-                b.children[5].querySelector('input').value = baris[5] || 0;
+                b.children[1].querySelector('input').value = baris[2] || "";
+                b.children[2].querySelector('input').value = baris[3] || 0;
+                b.children[3].querySelector('input').value = baris[4] || 0;
+                b.children[4].querySelector('input').value = baris[5] || 0;
+                b.children[5].querySelector('input').value = baris[6] || 0;
                 hitung(b.children[2].querySelector('input'));
-                b.children[8].querySelector('select').value = baris[8] || "Menunggu";
+                b.children[8].querySelector('select').value = baris[9] || "Menunggu";
             });
         }
         document.getElementById('statusInfo').textContent = "✅ Data terbaru dimuat!";
     }catch{
-        document.getElementById('statusInfo').textContent = "⚠️ Belum ada data atau sambungkan dulu tautan!";
+        document.getElementById('statusInfo').textContent = "⚠️ Pastikan tautan sudah benar!";
     }
 }
 </script>
